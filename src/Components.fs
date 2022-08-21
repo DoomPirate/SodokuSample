@@ -1056,7 +1056,7 @@ type Components =
             ]
             Html.a [
                 prop.style [ style.textAlign.center]
-                prop.href "https://github.com/DoomPirate/SodokuSample"
+                prop.href "https://github.com/DoomPirate/SodokuSample/blob/main/src/Components.fs"
                 prop.children [
                         Html.h4 [
                             prop.text "Source Code (Github)"
