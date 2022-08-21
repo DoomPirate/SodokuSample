@@ -623,7 +623,6 @@ module Utilities =
     // Get numbers which the cell could possibly be.
     // Uses process of elimination by finding numbers in the same column, same row, and same region, 
     // and eliminating them as candidates 
-    // Note, fix something
     let possibleValues (table:Table) (cellPosition:CellPosition) : int array = 
         let values = 
                             [|
@@ -776,7 +775,7 @@ module Utilities =
 
 
     // Main algorithm used to solve the sodoku puzzle
-    // Running step one will fill in one entry
+    // Running step one will fill in one entry or update possibility lists
     // Fills one at most one value
     // First uses deductive reasoning to determine what to fill in first.
     // If guess is enabled, it will make a guess when no logical choice can be made.
@@ -846,9 +845,9 @@ module Utilities =
                     ||> List.allPairs 
 
 
-                // This section is uses the following strategy
+                // This section uses the following strategy
                 // 1. Look at a single region
-                // 2. Look at the possibility numbers all the unfilled cells to see if it forms a "single file", either row or column.
+                // 2. Look at the possibility numbers of all unfilled cells to see if it forms a "single file", either row or column.
                 // 3. Extend the line that forms onto the other regions, and you can deduce that those cell's possibility numbers cannot 
                 //    be the "single file" value you found in step 2. 
                 // 4. Repeats this for all regions
