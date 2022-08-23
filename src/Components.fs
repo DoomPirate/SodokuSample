@@ -625,11 +625,11 @@ module Utilities =
     // and eliminating them as candidates 
     let possibleValues (table:Table) (cellPosition:CellPosition) : int array = 
         let values = 
-                            [|
-                                (getRowNumbersByCellPosition table  cellPosition)
-                                (getColNumbersByCellPosition table  cellPosition)
-                                (getNumbersInRegionByCellPosition table  cellPosition)
-                            |]  |> Array.concat |> Array.distinct        
+            [|
+                (getRowNumbersByCellPosition table  cellPosition)
+                (getColNumbersByCellPosition table  cellPosition)
+                (getNumbersInRegionByCellPosition table  cellPosition)
+            |]  |> Array.concat |> Array.distinct        
 
         [| 1 .. 9|] |> Array.filter(fun a -> (Array.contains  a values) = false )
 
@@ -639,12 +639,12 @@ module Utilities =
     let unfilledPosition (table:Table) : CellPosition array = 
         table 
         |> Array.mapi(fun r (row:Row) -> 
-                                            row 
-                                            |> Array.mapi(fun c (cell,_,_) -> 
-                                                                                    match cell with 
-                                                                                    | None -> Some(r,c)
-                                                                                    | Some(_) -> None)  
-                                            |> Array.choose id      
+                            row 
+                            |> Array.mapi(fun c (cell,_,_) -> 
+                                                match cell with 
+                                                | None -> Some(r,c)
+                                                | Some(_) -> None)  
+                            |> Array.choose id      
         ) |> Array.concat
 
 
@@ -666,12 +666,12 @@ module Utilities =
             table
             |> Array.mapi(fun rowIndex row -> 
                                 row |> Array.mapi(fun colIndex (cellValue,possibilitiesList,cp) -> 
-                                                                                                                                        if cellPosition = (rowIndex,colIndex) then
-                                                                                                                                            // Uodates possibilities list by filtering out the specified numbers
-                                                                                                                                            (cellValue,possibilitiesList  |> List.filter(fun i -> not (List.contains i (Array.toList numbers )))  ,cp)
-                                                                                                                                        else 
-                                                                                                                                            (cellValue,possibilitiesList,cp)
-                                                                                                                            )
+                                                                                                    if cellPosition = (rowIndex,colIndex) then
+                                                                                                        // Uodates possibilities list by filtering out the specified numbers
+                                                                                                        (cellValue,possibilitiesList  |> List.filter(fun i -> not (List.contains i (Array.toList numbers )))  ,cp)
+                                                                                                    else 
+                                                                                                        (cellValue,possibilitiesList,cp)
+                                                                                        )
                                                 )
 
     // For each unfilled position, calculate the number of possible values
@@ -728,22 +728,22 @@ module Utilities =
 
         // Loop through each row and determines validity    
         let rowsValid = 
-                    ([| 0..8 |]
-                    |> Array.map(fun a ->  isRowComplete table a)
-                    |> Array.filter(fun a -> a = false)).Length = 0
+            ([| 0..8 |]
+            |> Array.map(fun a ->  isRowComplete table a)
+            |> Array.filter(fun a -> a = false)).Length = 0
 
         // Loop through each column and determines validity      
         let colsValid = 
-                    ([| 0..8 |]
-                    |> Array.map(fun a ->  isColComplete table a)
-                    |> Array.filter(fun a -> a = false)).Length = 0
+            ([| 0..8 |]
+            |> Array.map(fun a ->  isColComplete table a)
+            |> Array.filter(fun a -> a = false)).Length = 0
 
 
         // Loop through each region and determines validity       
         let partitionsValid = 
-                    ((Array.allPairs [|0..2|] [|0..2|])  
-                    |> Array.map(fun (r,c) -> isRegionComplete table r c) 
-                    |> Array.filter(fun a -> a = false)).Length = 0
+            ((Array.allPairs [|0..2|] [|0..2|])  
+            |> Array.map(fun (r,c) -> isRegionComplete table r c) 
+            |> Array.filter(fun a -> a = false)).Length = 0
 
 
         rowsValid && colsValid && partitionsValid  
@@ -943,7 +943,9 @@ module Utilities =
                                         
 
                     )
-                            
+
+
+                // The list of cell posibility numbers that can be deleted (rows and columns)           
                 let allRemoval = (cellsToDeleteCol @ cellsToDeleteRow) |> List.concat  
 
             
@@ -1019,8 +1021,7 @@ module Utilities =
             // Solve the puzzle without brute forcing
             attemptSolve table bruteForce
             
-
-
+            
     // Gets random puzzle from the project euler data set
     let randomPuzzle() = refreshPossibilities (strToTable (getPuzzle ((new System.Random()).Next(0, 49)) )   ) 
 
@@ -1029,16 +1030,14 @@ module Utilities =
 
     // Gets random hard puzzle
     let randomHardPuzzle() =  
-                let randomHardIndex = hardPuzzleList.[(new System.Random()).Next(0, hardPuzzleList.Length)]
-                refreshPossibilities (strToTable (getPuzzle randomHardIndex )   )
+        let randomHardIndex = hardPuzzleList.[(new System.Random()).Next(0, hardPuzzleList.Length)]
+        refreshPossibilities (strToTable (getPuzzle randomHardIndex )   )
 
 open Utilities
 
 
 
 type Components =
-
-
 
     [<ReactComponent>]
     static member HelloWorld() =        
@@ -1049,14 +1048,14 @@ type Components =
          
             Html.h1 [
                 prop.text "Sodoku Solver"
-                prop.style [ style.textAlign.center]
+                prop.style [ style.textAlign.center ]
             ]
             Html.h3 [
                 prop.text "Written in F# by Philip Nguyen"
-                prop.style [ style.textAlign.center]
+                prop.style [ style.textAlign.center ]
             ]
             Html.a [
-                prop.style [ style.textAlign.center]
+                prop.style [ style.textAlign.center ]
                 prop.href "https://github.com/DoomPirate/SodokuSample/blob/main/src/Components.fs"
                 prop.children [
                         Html.h4 [
@@ -1194,12 +1193,8 @@ type Components =
                     Html.a [
                         prop.text "kbaheieldin@rivian.com"
                         prop.href "mailto:kbaheieldin@rivian.com"
-                        
-
                     ]
                 ]
             ]
-
-                
     ]
 
