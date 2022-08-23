@@ -775,18 +775,19 @@ module Utilities =
 
 
     // Main algorithm used to solve the sodoku puzzle
-    // Running step one will fill in one entry or update possibility lists
-    // Fills one at most one value
+    // One step will either fill in one entry or update the possibility lists
     // First uses deductive reasoning to determine what to fill in first.
     // If guess is enabled, it will make a guess when no logical choice can be made.
     let step (inputTable:Table) (guess:bool):Table = 
 
-
-            // Remove values from possibility lists
+            // Updates the possibility lists to see if any numbers can be removed from their respective list.
             let table = refreshPossibilities(inputTable)
 
 
-            // For the specified region, find any cell with a unique value in the possibility list
+            // For the specified region, find any cell with a unique value in the possibility list. A unique
+            // means that the cell is immediately solvable, because the cell value hat unique number.
+            // For example: A unique value in the a region would be if the number 7 occurs only once among all the 
+            // possibility lists in that region. The cell value must be 7.
             let findUniquePossibilityInRegion r c = 
 
                 let itemsInRegion = getCellsByRegion table r c
@@ -811,7 +812,7 @@ module Utilities =
                                     ))
 
             
-            // Loops through all regions and finds cell that have unique possiblity value in that region
+            // Loops through all regions and finds cells that have unique possiblity value in that region
             let cellsToUpdate = 
                 ([0..2] ,[0..2] )
                 ||> List.allPairs 
@@ -1023,6 +1024,7 @@ module Utilities =
     // Gets random puzzle from the project euler data set
     let randomPuzzle() = refreshPossibilities (strToTable (getPuzzle ((new System.Random()).Next(0, 49)) )   ) 
 
+    // Hard puzzles that will require brute force to full solve.
     let hardPuzzleList = [6;9;27;41;44;46;47;48;49] 
 
     // Gets random hard puzzle
