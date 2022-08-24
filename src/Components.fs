@@ -120,19 +120,19 @@ module Utilities =
         [| 1 .. 9|] |> Array.filter(fun a -> (Array.contains  a values) = false )
 
 
+    // Gets an array of all the cells in the table
+    let getAllCells table : Cell array =
+        table |> Array.concat
+
     // Returns an array of cell positions that do not have a value entered. 
     let unfilledPosition (table:Table) : CellPosition array = 
-        table 
-        |> Array.mapi(fun r (row:Row) -> 
-                            row 
-                            |> Array.mapi(fun c (cell,_,_) -> 
-                                                match cell with 
-                                                | None -> Some(r,c)
-                                                | Some(_) -> None)  
-                            |> Array.choose id      
-        ) |> Array.concat
-
-
+        getAllCells table 
+        |> Array.map(fun (cellValue,_,cp) ->       
+                            match cellValue with 
+                            | Some(_) -> None 
+                            | None -> Some(cp)
+        ) 
+        |> Array.choose id
 
     // Returns cell from input cell position
     let getCellByCellPosition (table:Table) (cellPosition:CellPosition): Cell = table.[fst cellPosition].[snd cellPosition] 
