@@ -7,7 +7,6 @@ open Data
 // Represents row and column index values
 type CellPosition = int * int
 
-
 type CellValue = int option 
 
 // Possible list keeps track of a integer list which the cell could possibly still be
@@ -25,8 +24,6 @@ type Table = Row array
 
 module Utilities = 
 
-
-
     // Converts char into an integer
     let inline charToInt c = int c - int '0'
 
@@ -36,15 +33,11 @@ module Utilities =
     // Returns the string representation of a specified puzzle
     let getPuzzle i = sodokuData.[9 * i .. 9 * i + 8 ] |>  Array.fold (+) ""
 
-
-
     // Takes string and turns it into an array of integers
     let strToArray str =
         Seq.toArray str
         |> Array.filter(fun a -> List.contains (charToInt a) [0..9]   )
         |> Array.map charToInt
-
-
 
     // Takes a string and turns it into a Table
     let strToTable (str:string):Table =
@@ -102,8 +95,6 @@ module Utilities =
         |> Array.choose id
         
  
-
-
     // Retrieves the numbers of specified region from specified cell position
     let getNumbersInRegionByCellPosition(table:Table) (cellPosition:CellPosition) : int array = 
         let (rowNumber,columnNumber) = cellPosition
@@ -113,8 +104,6 @@ module Utilities =
         let columnRegion = columnNumber / 3
 
         getNumbersInRegion  table rowRegion columnRegion
-
-
 
 
     // Get numbers which the cell could possibly be.
@@ -129,7 +118,6 @@ module Utilities =
             |]  |> Array.concat |> Array.distinct        
 
         [| 1 .. 9|] |> Array.filter(fun a -> (Array.contains  a values) = false )
-
 
 
     // Returns an array of cell positions that do not have a value entered. 
@@ -218,7 +206,6 @@ module Utilities =
     let isRegionComplete (table:Table) (r:int) (c:int): bool = ((getNumbersInRegion table r c) |> Array.distinct).Length = 9  
 
 
-
     // Returns if the puzzle is completed and valid
     // Checks rows, columns and regions for validity
     let validateResult (table:Table) : bool = 
@@ -246,8 +233,6 @@ module Utilities =
         rowsValid && colsValid && partitionsValid  
 
 
-
-
     let updateValuesInTable (table:Table) ((newValue,cellPosition): int  * CellPosition) : Table = 
         updateTable table cellPosition newValue
 
@@ -267,8 +252,6 @@ module Utilities =
             removePossibilities table cellPosition valuesToRemove
     
         Array.fold updatePossibilities inputTableState emptyPositionArray
-
-
 
 
     // Main algorithm used to solve the sodoku puzzle
