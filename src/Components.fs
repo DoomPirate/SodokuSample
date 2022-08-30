@@ -466,6 +466,17 @@ type Components =
                     ]
                 ]
             ]
+            Html.a [
+                prop.style [ style.textAlign.center ]
+                prop.href "https://docs.google.com/presentation/d/1glBa2K1iu_BEqa9e6qSZvsVue4HtHAGMMYjOixmKQB4/edit?usp=sharing"
+                           
+                prop.children [
+                    Html.h4 [
+                        prop.text "Slides"
+                        prop.style [ style.textAlign.center]
+                    ]
+                ]
+            ]
             Html.table [
                 prop.id "sodoku"
                 prop.style [ 
