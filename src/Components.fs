@@ -3,7 +3,7 @@ open Feliz
 open Data
 
 
-// Sodoku Solver written by Philip Nguyen
+// Sudoku Solver written by Philip Nguyen
 
 
 // Represents row and column index values
@@ -22,16 +22,16 @@ type Orientation =
     | Row 
     | Column
 
-module Sodoku = 
+module Sudoku = 
 
     // Converts char into an integer
     let inline charToInt c = int c - int '0'
 
-    // Parses sodoku string from project euler and turns it into a string array    
-    let sodokuData = (Data.projectEulerDataString.Split "\n") |> Array.map(fun a  -> a.Trim()) |> Array.filter(fun a -> a.Length = 9) 
+    // Parses Sudoku string from project euler and turns it into a string array    
+    let SudokuData = (Data.projectEulerDataString.Split "\n") |> Array.map(fun a  -> a.Trim()) |> Array.filter(fun a -> a.Length = 9) 
 
     // Returns the string representation of a specified puzzle
-    let getPuzzle i:string = sodokuData.[9 * i .. 9 * i + 8 ] |>  Array.fold (+) ""
+    let getPuzzle i:string = SudokuData.[9 * i .. 9 * i + 8 ] |>  Array.fold (+) ""
 
     // Takes string and turns it into an array of integers
     let strToArray str =
@@ -146,7 +146,7 @@ module Sodoku =
         |> Array.map (table |> isRegionComplete)
         |> Array.reduce (&&)
 
-    // Verify sodoku table is completed correctly
+    // Verify Sudoku table is completed correctly
     let validateResult (table:Cell array) : bool = 
         validateAllRows table && validateAllCols table && validateAllPartitions table
 
@@ -377,7 +377,7 @@ module Sodoku =
         else 
             attemptSolve table false
             
-open Sodoku
+open Sudoku
 
 
 
@@ -414,7 +414,7 @@ type Components =
         Html.div [
          
             Html.h1 [
-                prop.text "Sodoku Solver"
+                prop.text "Sudoku Solver"
                 prop.style [ style.textAlign.center ]
             ]
             Html.h3 [
@@ -423,7 +423,7 @@ type Components =
             ]
             Html.a [
                 prop.style [ style.textAlign.center ]
-                prop.href "https://github.com/DoomPirate/SodokuSample/blob/main/src/Components.fs"
+                prop.href "https://github.com/DoomPirate/SudokuSample/blob/main/src/Components.fs"
                 prop.children [
                     Html.h4 [
                         prop.text "Source Code (Github)"
@@ -443,7 +443,7 @@ type Components =
                 ]
             ]
             Html.table [
-                prop.id "sodoku"
+                prop.id "Sudoku"
                 prop.style [ 
                     style.marginLeft length.auto
                     style.marginRight length.auto
