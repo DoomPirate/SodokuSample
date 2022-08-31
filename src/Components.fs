@@ -18,6 +18,10 @@ type Candidates = int array
 type Cell = (CellValue * Candidates * CellPosition) 
 
 
+type Orientation =
+    | Row 
+    | Column
+
 module Sodoku = 
 
     // Converts char into an integer
@@ -232,7 +236,7 @@ module Sodoku =
     let randomHardPuzzle() =  
         let randomHardIndex = hardPuzzleList.[(new System.Random()).Next(0, hardPuzzleList.Length)]
         refreshCandidates (makeDataTable randomHardIndex)
-
+    
 
 
     // "Line Strategy: Advanced Candidate Removal Strategy"
@@ -245,13 +249,22 @@ module Sodoku =
     // 3. Extend the line that forms onto the other regions, and you can deduce that those cell's candidate numbers cannot 
     //    be the "single file" value you found in step 2. 
     // 4. Repeats this for all regions
-    let lineStrategyRow table inputRegion  = 
-        let inputRegionRow,_ = inputRegion
-
-        let getRowOfRegionCells (localIndex:int) (region :Cell array)  = 
-            let index = (region |> Array.map(fun (_,_,(r,c)) -> r ) |> Array.sortBy id).[localIndex] 
-            region |> Array.filter(fun (_,_,(r,c)) -> r = index)
-
+    let lineStrategy (table: Cell array) (orientation:Orientation) inputRegion   = 
+        let orientationPosition = 
+            match orientation with 
+            | Row ->  fst 
+            | Column -> snd
+        
+        let orientationFn = 
+            match orientation with 
+            | Row ->  getRow 
+            | Column -> getCol
+            
+        let orientationArray c =  
+            match orientation with 
+                | Row ->  [|3 * c.. 3 * c + 2|]  
+                | Column -> [|c .. 3 .. 8|] 
+                
         let currentRegionCells =  table |> getCellsInRegion inputRegion
 
         currentRegionCells
@@ -261,20 +274,20 @@ module Sodoku =
         |> Array.map(fun (i,cnt) ->
                             (i, 
                             [|0..2 |] 
-                            |> Array.filter(fun c -> (currentRegionCells.[3 * c.. 3 * c + 2] |> getCandidates |> Array.filter(fun b -> b = i) |> Array.length) = cnt)
+                            |> Array.filter(fun c -> orientationArray c |> Array.map(fun a -> currentRegionCells.[a]) |> getCandidates |> Array.filter(fun b -> b = i) |> Array.length = cnt)
                             |> Array.tryHead))
-        |> Array.map(fun (i, rowIndexOption ) ->
-                                match rowIndexOption with 
-                                | Some(r) -> 
-                                        match  (table |> getRow (r + 3 * inputRegionRow) |> Array.tryHead)   with 
-                                        | Some(_,_,cp) -> Some(i,fst cp)   
+        |> Array.map(fun (i, indexOption ) ->
+                                match indexOption with 
+                                | Some(a) -> 
+                                        match  (table |> orientationFn (a + 3 * (orientationPosition inputRegion)) |> Array.tryHead)   with 
+                                        | Some(_,_,cp) -> Some(i,orientationPosition cp)   
                                         | None -> None 
                                 | None -> None) 
         |> Array.choose id           
-        |> Array.map(fun (i,rowIndex) -> 
+        |> Array.map(fun (i,localIndex) -> 
                             (
                             table 
-                            |> getRow rowIndex
+                            |> orientationFn localIndex
                             |> Array.filter(fun c -> c |> candidates |> Array.contains i )
                             |> Array.filter(fun b ->   not (Array.contains  b  currentRegionCells  )) 
                             |> Array.map cellPosition
@@ -282,67 +295,14 @@ module Sodoku =
         |> Array.filter(fun a -> (fst a).Length > 0)
 
 
-    let lineStrategyCol table inputRegion  = 
-        let _,inputRegionCol = inputRegion
-
-        let getColOfRegionCells (localIndex:int) (region :Cell array)  = 
-            let index = (region |> Array.map(fun (_,_,(r,c)) -> c ) |> Array.sortBy id).[localIndex] 
-            region |> Array.filter(fun (_,_,(r,c)) -> c = index)
-
-        let currentRegionCells =  table |> getCellsInRegion inputRegion
-
-        let mapColIndexToCellIndexList (i:int): int array = 
-            match i with 
-            | 0 -> [| 0 ; 3 ; 6 |]
-            | 1 -> [| 1 ; 4 ; 7 |]
-            | 2 -> [| 2 ; 5 ; 8 |]
-            | _ -> [||]
-
-        currentRegionCells
-        |> getCandidates 
-        |> Array.countBy id
-        |> Array.filter(fun (i, cnt) -> cnt = 3 || cnt = 2)
-        |> Array.map(fun (i,cnt) ->
-                            (i, 
-                            [|0..2 |]                       
-                            |> Array.filter(fun c -> mapColIndexToCellIndexList c |> Array.map( fun a -> currentRegionCells.[a])  |> getCandidates |> Array.filter(fun b -> b = i) |> Array.length = cnt)
-                            |> Array.tryHead))
-        |> Array.map(fun (i, colIndexOption ) ->
-                                match colIndexOption with 
-                                | Some(c) -> 
-                                        match  (table |> getCol (c + 3 * inputRegionCol) |> Array.tryHead)   with 
-                                        | Some(_,_,cp) -> Some(i,snd cp)   
-                                        | None -> None 
-                                | None -> None) 
-        |> Array.choose id           
-        |> Array.map(fun (i,colIndex) -> 
-                            (
-                            table 
-                            |> getCol colIndex
-                            |> Array.filter(fun c -> c |> candidates |> Array.contains i )
-                            |> Array.filter(fun b ->   not (Array.contains  b  currentRegionCells  )) 
-                            |> Array.map cellPosition,
-                            i))
-        |> Array.filter(fun a -> (fst a).Length > 0)
-   
-
-    let lineStrategyRowEntireTable inputTable = 
+    let lineStrategyEntireTable (orientation:Orientation) inputTable  = 
         (Array.allPairs [|0..2|] [|0..2|])  
-        |> Array.map (lineStrategyRow inputTable )
+        |> Array.map (lineStrategy inputTable orientation)
         |> Array.concat
         |> Array.map(fun (cpl,i) ->  (cpl |> Array.map(fun c -> (c,i))) )
         |> Array.concat
         |> Array.fold (fun tbl (cp,i) ->  updateTableCandidateList cp [|i|]  tbl)  inputTable  
 
-
-    let lineStrategyColEntireTable inputTable = 
-        (Array.allPairs [|0..2|] [|0..2|])
-        |> Array.map (lineStrategyCol inputTable)
-        |> Array.concat
-        |> Array.map(fun (cpl,i) ->  (cpl |> Array.map(fun c -> (c,i))) )
-        |> Array.concat
-        |> Array.fold (fun tbl (cp,i) ->  updateTableCandidateList cp [|i|]  tbl)  inputTable  
-    
 
     // One step will attempt to fill in any values using deductive reasoning.
     // If brute force is enabled, then guessing will occur if no logical choice can be made.
@@ -367,7 +327,12 @@ module Sodoku =
                 |> refreshCandidates 
             else 
                 // Remove Candidates numbers based on the "Line" Strategy
-                let newTable = refreshCandidates (lineStrategyColEntireTable (lineStrategyRowEntireTable table))
+
+                let newTable = 
+                    table 
+                    |> lineStrategyEntireTable Row 
+                    |> lineStrategyEntireTable Column
+                    |> refreshCandidates
 
                 // Brute force works by finding the cell with the least amount of candidate items. Then randomly fill in a cell that is, or tied for the least amount of candidate items.
                 if bruteForce && newTable = table then 
